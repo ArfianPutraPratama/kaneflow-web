@@ -13,19 +13,20 @@
 
         header {
             background-color: #88C07C;
-            padding: 10px 20px;
+            padding: 15px;
             text-align: center;
         }
 
         .logo {
-            height: 40px;
+            height: 80px;
+            transition: all 0.3s ease;
         }
 
         .hero {
             background-color: #A9F3E3;
             display: flex;
             align-items: center;
-            padding: 30px 10%;
+            padding: 100px 10%;
             gap: 30px;
             flex-wrap: wrap;
         }
@@ -110,9 +111,12 @@
             background-color: #ccf4eb;
         }
 
-        .fitur-image img {
-            max-width: 150px;
-            height: auto;
+        .fitur-image img,
+        .fitur-image video {
+            max-width: 450px;
+            height: 250px;
+            border-radius: 8px;
+            /* Menambahkan sudut melengkung */
         }
 
         .fitur-text {
@@ -135,14 +139,13 @@
         }
 
         .footer {
-            background-color: #88C07C;
+            background-color: #7C7C7C;
             color: white;
             text-align: center;
-            padding: 15px 0;
+            padding: 100px 0;
             font-size: 0.9rem;
-            margin-top: 50px;
+            margin-top: 10px;
         }
-
 
         @media (max-width: 768px) {
             .fitur-detail {
@@ -159,11 +162,11 @@
 
 <body>
     <header>
-        <img src="{{ asset('images/logo.png') }}" alt="OkaneFlow Logo" class="logo">
+        <img src="images/logo.png" alt="OkaneFlow Logo" class="logo" style="height: 60px;">
     </header>
 
     <section class="hero">
-        <img src="{{ asset('images/hero-image.png') }}" alt="Keuangan Ilustrasi">
+        <img src="images/hero-image.png" alt="Keuangan Ilustrasi" style="width: 400px; height: 200px;">
         <div class="hero-text">
             <h2>Kelola Keuanganmu Lebih Mudah dan Praktis!</h2>
             <p>
@@ -174,34 +177,38 @@
             </p>
             <div class="buttons">
                 <a href="#" class="btn">Download</a>
-                <a href="#" class="btn">Kelola Dengan Web</a>
+                <a href="{{ route('login') }}" class="btn">Kelola Dengan Web</a>
             </div>
         </div>
     </section>
 
     <section class="features">
         <div class="feature-item">
-            <img src="{{ asset('images/icon-income.png') }}" alt="Pemasukan">
+            <img src="images/icon-income.png" alt="Pemasukan" style="height: 150px;">
             <p>Catat Pemasukan Keuangan</p>
         </div>
         <div class="feature-item">
-            <img src="{{ asset('images/icon-expense.png') }}" alt="Pengeluaran">
+            <img src="images/icon-expense.png" alt="Pengeluaran" style="height: 150px;">
             <p>Catat Pengeluaran Keuangan</p>
         </div>
         <div class="feature-item">
-            <img src="{{ asset('images/icon-report.png') }}" alt="Arus Kas">
+            <img src="images/icon-report.png" alt="Arus Kas" style="height: 150px;">
             <p>Rekap Arus Kas Masuk & Keluar</p>
         </div>
         <div class="feature-item">
-            <img src="{{ asset('images/icon-print.png') }}" alt="Cetak Laporan">
+            <img src="images/icon-print.png" alt="Cetak Laporan" style="height: 150px;">
             <p>Cetak Laporan Keuangan</p>
         </div>
     </section>
+
     <section class="fitur-detail-section">
         <!-- Fitur 1 -->
         <div class="fitur-detail green">
             <div class="fitur-image">
-                <img src="{{ asset('images/icon-income.png') }}" alt="Catat Pemasukan">
+                <!-- Ganti dengan video -->
+                <video src="images/pemasukan.mp4" alt="Catat Pemasukan" controls autoplay muted loop>
+                    Your browser does not support the video tag.
+                </video>
             </div>
             <div class="fitur-text">
                 <h3>Catat Pemasukan Keuangan</h3>
@@ -215,6 +222,7 @@
 
         <!-- Fitur 2 -->
         <div class="fitur-detail">
+
             <div class="fitur-text">
                 <h3>Catat Pengeluaran Keuangan</h3>
                 <p>
@@ -224,14 +232,21 @@
                 </p>
             </div>
             <div class="fitur-image">
-                <img src="{{ asset('images/icon-expense.png') }}" alt="Catat Pengeluaran">
+                <!-- Ganti dengan video -->
+                <video src="images/pengeluaran.mp4" alt="Catat Pemasukan" controls autoplay muted loop>
+                    Your browser does not support the video tag.
+                </video>
             </div>
         </div>
 
         <!-- Fitur 3 -->
         <div class="fitur-detail green">
             <div class="fitur-image">
-                <img src="{{ asset('images/icon-report.png') }}" alt="Rekap Kas">
+                <!-- Ganti dengan video -->
+                <video src="images/Rekap Arus Kas Masuk & Keluar.mp4" alt="Catat Pemasukan" controls autoplay muted
+                    loop>
+                    Your browser does not support the video tag.
+                </video>
             </div>
             <div class="fitur-text">
                 <h3>Rekap Arus Kas Masuk & Keluar</h3>
@@ -254,13 +269,17 @@
                 </p>
             </div>
             <div class="fitur-image">
-                <img src="{{ asset('images/icon-expense.png') }}" alt="Catat Pengeluaran">
+                <!-- Ganti dengan video -->
+                <video src="images/Catat Pengeluaran Keuangan.mp4" alt="Catat Pemasukan" controls autoplay muted loop>
+                    Your browser does not support the video tag.
+                </video>
             </div>
+        </div>
     </section>
+
     <footer class="footer">
         © 2025 Kelompok 3
     </footer>
-
 </body>
 
 </html>
