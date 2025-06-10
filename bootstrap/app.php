@@ -1,9 +1,10 @@
 <?php
-// bootstrap/app.php
 
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use App\Http\Middleware\CorsMiddleware; // Impor CorsMiddleware
+use App\Http\Middleware\EnsureJsonResponse; // Impor EnsureJsonResponse
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -13,17 +14,21 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        // Middleware untuk rute web
         $middleware->web(append: [
             \Illuminate\Session\Middleware\StartSession::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
-
         ]);
 
+        // Middleware untuk rute API
         $middleware->api(append: [
             \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
+            CorsMiddleware::class, // Tetap gunakan CorsMiddleware
+            EnsureJsonResponse::class, // Tambahkan EnsureJsonResponse untuk rute API
         ]);
 
+        // Alias middleware
         $middleware->alias([
             'auth' => \Illuminate\Auth\Middleware\Authenticate::class,
             'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
@@ -37,6 +42,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
             'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
             'auth:sanctum' => \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
+            'cors' => CorsMiddleware::class, // Alias untuk CorsMiddleware
+            'ensure.json.response' => EnsureJsonResponse::class, // Alias untuk EnsureJsonResponse
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

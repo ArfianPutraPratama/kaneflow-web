@@ -5,13 +5,23 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Pemasukan;
 use App\Models\Pengeluaran;
+use App\Models\Transaksi;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
-
+use Illuminate\Routing\Controller;
 class TransaksiController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth:api')->except([
+            'pemasukan',
+            'pengeluaran',
+            'pemasukanTabel',
+            'pengeluaranTabel'
+        ]);
+    }
     public function pemasukan()
     {
         return view('transaksi.Pemasukan');
@@ -146,7 +156,7 @@ class TransaksiController extends Controller
                     }
                 },
             ],
-            'kategori' => 'required',
+            'kategori' => 'required|in:1,2,3,4,5,6,7,8,9,10', // Validasi ketat untuk kategori
             'deskripsi' => 'required|string',
             'jumlah' => 'required|numeric|min:1',
             'bukti_transaksi' => 'nullable|image|mimes:jpeg,png|max:1024',
@@ -165,7 +175,16 @@ class TransaksiController extends Controller
             '10' => 'Pemasukan Lainnya',
         ];
 
-        $kategoriText = $kategoriMap[$request->kategori] ?? 'Unknown';
+        $kategoriText = $kategoriMap[$request->kategori] ?? null;
+
+        if (!$kategoriText) {
+            Log::error('Invalid kategori in updatePemasukan', ['kategori' => $request->kategori]);
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Kategori tidak valid.',
+            ], 422);
+        }
+
         $buktiPath = $pemasukan->bukti_transaksi;
 
         if ($request->hasFile('bukti_transaksi')) {
@@ -314,7 +333,7 @@ class TransaksiController extends Controller
                     }
                 },
             ],
-            'kategori' => 'required',
+            'kategori' => 'required|in:1,2,3,4,5,6,7,8,9,10', // Validasi ketat untuk kategori
             'deskripsi' => 'required|string',
             'jumlah' => 'required|numeric|min:1',
             'bukti_transaksi' => 'nullable|image|mimes:jpeg,png|max:1024',
@@ -333,7 +352,16 @@ class TransaksiController extends Controller
             '10' => 'Pengeluaran Lainnya',
         ];
 
-        $kategoriText = $kategoriMap[$request->kategori] ?? 'Unknown';
+        $kategoriText = $kategoriMap[$request->kategori] ?? null;
+
+        if (!$kategoriText) {
+            Log::error('Invalid kategori in updatePengeluaran', ['kategori' => $request->kategori]);
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Kategori tidak valid.',
+            ], 422);
+        }
+
         $buktiPath = $pengeluaran->bukti_transaksi;
 
         if ($request->hasFile('bukti_transaksi')) {
@@ -451,7 +479,7 @@ class TransaksiController extends Controller
                     }
                 },
             ],
-            'kategori' => 'required',
+            'kategori' => 'required|in:1,2,3,4,5,6,7,8,9,10', // Validasi ketat untuk kategori
             'deskripsi' => 'required|string',
             'jumlah' => 'required|numeric|min:1',
             'bukti_transaksi' => 'nullable|image|mimes:jpeg,png|max:1024',
@@ -470,7 +498,16 @@ class TransaksiController extends Controller
             '10' => 'Pemasukan Lainnya',
         ];
 
-        $kategoriText = $kategoriMap[$request->kategori] ?? 'Unknown';
+        $kategoriText = $kategoriMap[$request->kategori] ?? null;
+
+        if (!$kategoriText) {
+            Log::error('Invalid kategori in pemasukanStore', ['kategori' => $request->kategori]);
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Kategori tidak valid.',
+            ], 422);
+        }
+
         $buktiPath = null;
 
         if ($request->hasFile('bukti_transaksi')) {
@@ -594,7 +631,7 @@ class TransaksiController extends Controller
                     }
                 },
             ],
-            'kategori' => 'required',
+            'kategori' => 'required|in:1,2,3,4,5,6,7,8,9,10', // Validasi ketat untuk kategori
             'deskripsi' => 'required|string',
             'jumlah' => 'required|numeric|min:1',
             'bukti_transaksi' => 'nullable|image|mimes:jpeg,png|max:1024',
@@ -613,7 +650,16 @@ class TransaksiController extends Controller
             '10' => 'Pengeluaran Lainnya',
         ];
 
-        $kategoriText = $kategoriMap[$request->kategori] ?? 'Unknown';
+        $kategoriText = $kategoriMap[$request->kategori] ?? null;
+
+        if (!$kategoriText) {
+            Log::error('Invalid kategori in pengeluaranStore', ['kategori' => $request->kategori]);
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Kategori tidak valid.',
+            ], 422);
+        }
+
         $buktiPath = null;
 
         if ($request->hasFile('bukti_transaksi')) {
@@ -812,4 +858,164 @@ class TransaksiController extends Controller
         }
     }
 
+    public function store(Request $request)
+    {
+        try {
+            Log::info('Received data for store transaksi', [
+                'request_data' => $request->all(),
+                'user_id' => Auth::id(),
+            ]);
+
+            // Validasi input
+            $validated = $request->validate([
+                'nama_transaksi' => 'required|string|max:255',
+                'jumlah' => 'required|numeric|min:1',
+                'tipe' => 'required|in:masuk,keluar',
+                'tanggal' => [
+                    'required',
+                    'regex:/^\d{2}-\d{2}-\d{4}$/',
+                    function ($attribute, $value, $fail) {
+                        $parts = explode('-', $value);
+                        if (count($parts) !== 3) {
+                            $fail('Format tanggal harus DD-MM-YYYY (contoh: 31-12-2024).');
+                            return;
+                        }
+                        $day = (int) $parts[0];
+                        $month = (int) $parts[1];
+                        $year = (int) $parts[2];
+                        if (!checkdate($month, $day, $year)) {
+                            $fail('Tanggal tidak valid (contoh: 31-12-2024).');
+                        }
+                    },
+                ],
+            ]);
+
+            // Parse tanggal ke format Y-m-d
+            try {
+                $tanggal = Carbon::createFromFormat('d-m-Y', $request->tanggal)->format('Y-m-d');
+                Log::info('Tanggal parsed successfully for store transaksi', ['tanggal' => $tanggal]);
+            } catch (\Exception $e) {
+                Log::error('Failed to parse date in store transaksi', [
+                    'error' => $e->getMessage(),
+                    'tanggal' => $request->tanggal,
+                ]);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Tanggal tidak valid atau format tidak sesuai (harus DD-MM-YYYY).',
+                ], 422);
+            }
+
+            // Simpan data transaksi
+            $transaksi = Transaksi::create([
+                'user_id' => Auth::id(),
+                'nama_transaksi' => $validated['nama_transaksi'],
+                'jumlah' => $validated['jumlah'],
+                'tipe' => $validated['tipe'],
+                'tanggal' => $tanggal,
+            ]);
+
+            // Format data untuk response
+            $responseData = [
+                'id' => $transaksi->id,
+                'nama_transaksi' => $transaksi->nama_transaksi,
+                'jumlah' => $transaksi->jumlah,
+                'jumlah_formatted' => number_format($transaksi->jumlah, 0, ',', '.'),
+                'tipe' => $transaksi->tipe,
+                'tanggal' => Carbon::parse($transaksi->tanggal)->format('d-m-Y'),
+            ];
+
+            // Simpan data ke session untuk konsistensi
+            $updatedTransaksiData = Transaksi::where('user_id', Auth::id())->get()->map(function ($item) {
+                $item->tanggal = Carbon::parse($item->tanggal)->format('d-m-Y');
+                $item->jumlah_formatted = number_format($item->jumlah, 0, ',', '.');
+                return $item;
+            })->toArray();
+            session(['transaksiData_' . Auth::id() => $updatedTransaksiData]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Transaksi berhasil disimpan.',
+                'data' => $responseData,
+            ], 201);
+
+        } catch (\Exception $e) {
+            Log::error('Failed to store transaksi', [
+                'error' => $e->getMessage(),
+                'request_data' => $request->all(),
+            ]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menyimpan transaksi: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function index(Request $request)
+    {
+        try {
+            $month = $request->input('month', Carbon::now()->month);
+            $year = $request->input('year', Carbon::now()->year);
+            $userId = Auth::id();
+
+            if (!$userId) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'User not authenticated.',
+                ], 401);
+            }
+
+            // Ambil data dari tabel Pemasukan
+            $pemasukan = Pemasukan::where('user_id', $userId)
+                ->whereMonth('tanggal', $month)
+                ->whereYear('tanggal', $year)
+                ->get()
+                ->map(function ($item) {
+                    return [
+                        'id' => $item->id,
+                        'kategori' => $item->kategori,
+                        'jumlah' => $item->jumlah,
+                        'tanggal' => Carbon::parse($item->tanggal)->format('d-m-Y'),
+                        'deskripsi' => $item->deskripsi,
+                        'type' => 'pemasukan',
+                    ];
+                })->toArray();
+
+            // Ambil data dari tabel Pengeluaran
+            $pengeluaran = Pengeluaran::where('user_id', $userId)
+                ->whereMonth('tanggal', $month)
+                ->whereYear('tanggal', $year)
+                ->get()
+                ->map(function ($item) {
+                    return [
+                        'id' => $item->id,
+                        'kategori' => $item->kategori,
+                        'jumlah' => $item->jumlah,
+                        'tanggal' => Carbon::parse($item->tanggal)->format('d-m-Y'),
+                        'deskripsi' => $item->deskripsi,
+                        'type' => 'pengeluaran',
+                    ];
+                })->toArray();
+
+            // Gabungkan data Pemasukan dan Pengeluaran
+            $transaksi = array_merge($pemasukan, $pengeluaran);
+
+            // Simpan ke session untuk kompatibilitas web
+            session(['transaksiData_' . Auth::id() => $transaksi]);
+
+            return response()->json([
+                'status' => 'success',
+                'data' => $transaksi,
+            ], 200);
+
+        } catch (\Exception $e) {
+            Log::error('Failed to fetch transaksi', [
+                'error' => $e->getMessage(),
+                'request_data' => $request->all(),
+            ]);
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Gagal mengambil data transaksi: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
 }

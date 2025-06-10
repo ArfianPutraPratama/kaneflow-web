@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use App\Models\User;
+use Illuminate\Support\Facades\Log;
 
 class ProfilController extends Controller
 {
@@ -18,6 +19,8 @@ class ProfilController extends Controller
     // API route: Return profile data as JSON
     public function apiProfil(Request $request, $id = null)
     {
+        Log::info('Fetching profile', ['id' => $id, 'user' => $request->user()]);
+
         if (is_null($id)) {
             $user = $request->user();
             if (!$user instanceof User) {
@@ -68,6 +71,8 @@ class ProfilController extends Controller
     // API route: Return profile data for editing as JSON
     public function apiUbahProfil(Request $request)
     {
+        Log::info('Fetching profile data for editing', ['user' => $request->user()]);
+
         $user = $request->user();
         if (!$user instanceof User) {
             return response()->json(['message' => 'User not authenticated'], 401);
@@ -93,6 +98,8 @@ class ProfilController extends Controller
     // Web route: Update the profile
     public function update(Request $request)
     {
+        Log::info('Updating profile via web route', ['request' => $request->all()]);
+
         $validator = Validator::make($request->all(), [
             'full_name' => 'required|string|max:255',
             'username' => 'required|string|max:191|unique:users,username,' . Auth::id(),
@@ -144,6 +151,8 @@ class ProfilController extends Controller
     // API route: Update the profile via API
     public function apiUpdate(Request $request, $id = null)
     {
+        Log::info('Updating profile via API', ['id' => $id, 'request' => $request->all()]);
+
         // Determine which user to update
         if (is_null($id)) {
             $user = $request->user();
@@ -186,6 +195,7 @@ class ProfilController extends Controller
         ]);
 
         if ($validator->fails()) {
+            Log::warning('Validation failed for profile update', ['errors' => $validator->errors()]);
             return response()->json([
                 'message' => 'Validation failed',
                 'errors' => $validator->errors(),
@@ -216,6 +226,8 @@ class ProfilController extends Controller
 
         // Update the user
         $user->update($data);
+
+        Log::info('Profile updated successfully', ['user_id' => $user->id]);
 
         return response()->json([
             'message' => 'Profile updated successfully',

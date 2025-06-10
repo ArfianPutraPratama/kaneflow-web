@@ -214,4 +214,33 @@ class AuthController extends Controller
             'user' => $user,
         ]);
     }
+
+    // API: Update password
+    public function apiUpdatePassword(Request $request)
+    {
+        Log::info('API Update Password request data', $request->all());
+
+        $request->validate([
+            'current_password' => 'required|string',
+            'new_password' => 'required|string|min:8|confirmed',
+        ]);
+
+        $user = $request->user();
+        if (!$user) {
+            return response()->json(['message' => 'User not authenticated'], 401);
+        }
+
+        if (!Hash::check($request->current_password, $user->password)) {
+            return response()->json(['message' => 'Current password is incorrect'], 401);
+        }
+
+        if (Hash::check($request->new_password, $user->password)) {
+            return response()->json(['message' => 'New password cannot be the same as the current password'], 422);
+        }
+
+        $user->update(['password' => Hash::make($request->new_password)]);
+        Log::info('Password updated successfully for user', ['user_id' => $user->id]);
+
+        return response()->json(['message' => 'Password updated successfully'], 200);
+    }
 }

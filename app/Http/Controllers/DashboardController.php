@@ -10,26 +10,29 @@ use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $currentMonth = Carbon::now()->format('F Y');
+        $month = $request->input('month', Carbon::now()->month);
+        $year = $request->input('year', Carbon::now()->year);
+
+        $currentMonth = Carbon::createFromDate($year, $month, 1)->format('F Y');
         $userId = Auth::id();
 
-        $saldoAwal = $this->calculateSaldoAwal($userId);
+        $saldoAwal = $this->calculateSaldoAwal($userId, $month, $year);
 
         $totalPemasukan = Pemasukan::where('user_id', $userId)
-            ->whereMonth('tanggal', Carbon::now()->month)
-            ->whereYear('tanggal', Carbon::now()->year)
+            ->whereMonth('tanggal', $month)
+            ->whereYear('tanggal', $year)
             ->sum('jumlah');
 
         $totalPengeluaran = Pengeluaran::where('user_id', $userId)
-            ->whereMonth('tanggal', Carbon::now()->month)
-            ->whereYear('tanggal', Carbon::now()->year)
+            ->whereMonth('tanggal', $month)
+            ->whereYear('tanggal', $year)
             ->sum('jumlah');
 
         $topPemasukan = Pemasukan::where('user_id', $userId)
-            ->whereMonth('tanggal', Carbon::now()->month)
-            ->whereYear('tanggal', Carbon::now()->year)
+            ->whereMonth('tanggal', $month)
+            ->whereYear('tanggal', $year)
             ->orderBy('jumlah', 'desc')
             ->take(5)
             ->get()
@@ -41,8 +44,8 @@ class DashboardController extends Controller
             })->toArray();
 
         $topPengeluaran = Pengeluaran::where('user_id', $userId)
-            ->whereMonth('tanggal', Carbon::now()->month)
-            ->whereYear('tanggal', Carbon::now()->year)
+            ->whereMonth('tanggal', $month)
+            ->whereYear('tanggal', $year)
             ->orderBy('jumlah', 'desc')
             ->take(5)
             ->get()
@@ -53,13 +56,30 @@ class DashboardController extends Controller
                 ];
             })->toArray();
 
-        return view('Dashboard', compact('saldoAwal', 'totalPemasukan', 'totalPengeluaran', 'currentMonth', 'topPemasukan', 'topPengeluaran'));
+        return view('Dashboard', compact(
+            'saldoAwal',
+            'totalPemasukan',
+            'totalPengeluaran',
+            'currentMonth',
+            'topPemasukan',
+            'topPengeluaran',
+            'month',
+            'year'
+        ));
     }
 
-    private function calculateSaldoAwal($userId)
+    private function calculateSaldoAwal($userId, $currentMonth, $currentYear)
     {
-        $earliestPemasukanDate = Pemasukan::where('user_id', $userId)->orderBy('tanggal')->value('tanggal');
-        $earliestPengeluaranDate = Pengeluaran::where('user_id', $userId)->orderBy('tanggal')->value('tanggal');
+        $currentDate = Carbon::createFromDate($currentYear, $currentMonth, 1);
+        $currentMonthStart = $currentDate->copy()->startOfMonth();
+
+        $earliestPemasukanDate = Pemasukan::where('user_id', $userId)
+            ->orderBy('tanggal')
+            ->value('tanggal');
+
+        $earliestPengeluaranDate = Pengeluaran::where('user_id', $userId)
+            ->orderBy('tanggal')
+            ->value('tanggal');
 
         $earliestDateCandidates = array_filter([$earliestPemasukanDate, $earliestPengeluaranDate]);
         if (empty($earliestDateCandidates)) {
@@ -67,18 +87,18 @@ class DashboardController extends Controller
         }
 
         $earliestDate = min($earliestDateCandidates);
-        $currentMonthStart = Carbon::now()->startOfMonth();
+        $earliestDate = Carbon::parse($earliestDate)->startOfMonth();
 
         if ($earliestDate >= $currentMonthStart) {
             return 0;
         }
 
         $saldoAwal = 0;
-        $currentDate = Carbon::parse($earliestDate)->startOfMonth();
+        $calculationDate = $earliestDate->copy();
 
-        while ($currentDate < $currentMonthStart) {
-            $monthStart = $currentDate;
-            $monthEnd = $currentDate->copy()->endOfMonth();
+        while ($calculationDate < $currentMonthStart) {
+            $monthStart = $calculationDate;
+            $monthEnd = $calculationDate->copy()->endOfMonth();
 
             $monthPemasukan = Pemasukan::where('user_id', $userId)
                 ->whereBetween('tanggal', [$monthStart, $monthEnd])
@@ -88,11 +108,9 @@ class DashboardController extends Controller
                 ->whereBetween('tanggal', [$monthStart, $monthEnd])
                 ->sum('jumlah');
 
-            $saldoAkhir = $saldoAwal + $monthPemasukan - $monthPengeluaran;
+            $saldoAwal += ($monthPemasukan - $monthPengeluaran);
 
-            $saldoAwal = $saldoAkhir;
-
-            $currentDate->addMonth();
+            $calculationDate->addMonth();
         }
 
         return $saldoAwal;
@@ -100,24 +118,27 @@ class DashboardController extends Controller
 
     public function apiIndex(Request $request)
     {
-        $currentMonth = Carbon::now()->format('F Y');
+        $month = $request->input('month', Carbon::now()->month);
+        $year = $request->input('year', Carbon::now()->year);
+
+        $currentMonth = Carbon::createFromDate($year, $month, 1)->format('F Y');
         $userId = Auth::id();
 
-        $saldoAwal = $this->calculateSaldoAwal($userId);
+        $saldoAwal = $this->calculateSaldoAwal($userId, $month, $year);
 
         $totalPemasukan = Pemasukan::where('user_id', $userId)
-            ->whereMonth('tanggal', Carbon::now()->month)
-            ->whereYear('tanggal', Carbon::now()->year)
+            ->whereMonth('tanggal', $month)
+            ->whereYear('tanggal', $year)
             ->sum('jumlah');
 
         $totalPengeluaran = Pengeluaran::where('user_id', $userId)
-            ->whereMonth('tanggal', Carbon::now()->month)
-            ->whereYear('tanggal', Carbon::now()->year)
+            ->whereMonth('tanggal', $month)
+            ->whereYear('tanggal', $year)
             ->sum('jumlah');
 
         $topPemasukan = Pemasukan::where('user_id', $userId)
-            ->whereMonth('tanggal', Carbon::now()->month)
-            ->whereYear('tanggal', Carbon::now()->year)
+            ->whereMonth('tanggal', $month)
+            ->whereYear('tanggal', $year)
             ->orderBy('jumlah', 'desc')
             ->take(5)
             ->get()
@@ -129,8 +150,8 @@ class DashboardController extends Controller
             })->toArray();
 
         $topPengeluaran = Pengeluaran::where('user_id', $userId)
-            ->whereMonth('tanggal', Carbon::now()->month)
-            ->whereYear('tanggal', Carbon::now()->year)
+            ->whereMonth('tanggal', $month)
+            ->whereYear('tanggal', $year)
             ->orderBy('jumlah', 'desc')
             ->take(5)
             ->get()
@@ -151,6 +172,8 @@ class DashboardController extends Controller
                 'currentMonth' => $currentMonth,
                 'topPemasukan' => $topPemasukan,
                 'topPengeluaran' => $topPengeluaran,
+                'month' => (int) $month,
+                'year' => (int) $year,
             ],
         ], 200);
     }

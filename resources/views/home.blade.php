@@ -176,7 +176,9 @@
                 Tak suka buka web? Tenang, tersedia juga aplikasi Android yang siap bantu atur keuanganmu di genggaman.
             </p>
             <div class="buttons">
-                <a href="#" class="btn">Download</a>
+                <a href="
+https://drive.google.com/uc?export=download&id=1ESqdh5DEdKQeGhgzTi3WHQZ4T2Jg7iIZ"
+                    class="btn">Download</a>
                 <a href="{{ route('login') }}" class="btn">Kelola Dengan Web</a>
             </div>
         </div>
