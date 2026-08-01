@@ -63,7 +63,7 @@ class TransaksiController extends Controller
             ], 200);
         }
 
-        return view('transaksi_tabel.Pemasukan-tabel', compact('pemasukanData'));
+        return view('transaksi_tabel.pemasukan-tabel', compact('pemasukanData'));
     }
 
     public function pengeluaranTabel(Request $request)
