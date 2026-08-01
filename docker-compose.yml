@@ -66,6 +66,24 @@ services:
     networks:
       - tugasweb-network
 
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: tugasweb-phpmyadmin
+    restart: unless-stopped
+    ports:
+      # Akses phpMyAdmin melalui browser di http://IP_CASAOS:8088
+      - "${PMA_PORT:-8088}:80"
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: "${DB_PASSWORD:-rootpassword}"
+      UPLOAD_LIMIT: 64M
+    depends_on:
+      - db
+    networks:
+      - tugasweb-network
+
 volumes:
   tugasweb_storage:
   tugasweb_logs:
