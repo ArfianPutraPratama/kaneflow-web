@@ -162,11 +162,11 @@
 
 <body>
     <header>
-        <img src="images/logo.png" alt="OkaneFlow Logo" class="logo" style="height: 60px;">
+        <img src="{{ asset('images/logo.png') }}" alt="OkaneFlow Logo" class="logo" style="height: 60px;">
     </header>
 
     <section class="hero">
-        <img src="images/hero-image.png" alt="Keuangan Ilustrasi" style="width: 400px; height: 200px;">
+        <img src="{{ asset('images/hero-image.png') }}" alt="Keuangan Ilustrasi" style="width: 400px; height: 200px;">
         <div class="hero-text">
             <h2>Kelola Keuanganmu Lebih Mudah dan Praktis!</h2>
             <p>
@@ -186,19 +186,19 @@ https://drive.google.com/uc?export=download&id=1ESqdh5DEdKQeGhgzTi3WHQZ4T2Jg7iIZ
 
     <section class="features">
         <div class="feature-item">
-            <img src="images/icon-income.png" alt="Pemasukan" style="height: 150px;">
+            <img src="{{ asset('images/icon-income.png') }}" alt="Pemasukan" style="height: 150px;">
             <p>Catat Pemasukan Keuangan</p>
         </div>
         <div class="feature-item">
-            <img src="images/icon-expense.png" alt="Pengeluaran" style="height: 150px;">
+            <img src="{{ asset('images/icon-expense.png') }}" alt="Pengeluaran" style="height: 150px;">
             <p>Catat Pengeluaran Keuangan</p>
         </div>
         <div class="feature-item">
-            <img src="images/icon-report.png" alt="Arus Kas" style="height: 150px;">
+            <img src="{{ asset('images/icon-report.png') }}" alt="Arus Kas" style="height: 150px;">
             <p>Rekap Arus Kas Masuk & Keluar</p>
         </div>
         <div class="feature-item">
-            <img src="images/icon-print.png" alt="Cetak Laporan" style="height: 150px;">
+            <img src="{{ asset('images/icon-print.png') }}" alt="Cetak Laporan" style="height: 150px;">
             <p>Cetak Laporan Keuangan</p>
         </div>
     </section>
@@ -208,7 +208,7 @@ https://drive.google.com/uc?export=download&id=1ESqdh5DEdKQeGhgzTi3WHQZ4T2Jg7iIZ
         <div class="fitur-detail green">
             <div class="fitur-image">
                 <!-- Ganti dengan video -->
-                <video src="images/pemasukan.mp4" alt="Catat Pemasukan" controls autoplay muted loop>
+                <video src="{{ asset('images/pemasukan.mp4') }}" alt="Catat Pemasukan" controls autoplay muted loop>
                     Your browser does not support the video tag.
                 </video>
             </div>
@@ -235,7 +235,7 @@ https://drive.google.com/uc?export=download&id=1ESqdh5DEdKQeGhgzTi3WHQZ4T2Jg7iIZ
             </div>
             <div class="fitur-image">
                 <!-- Ganti dengan video -->
-                <video src="images/pengeluaran.mp4" alt="Catat Pemasukan" controls autoplay muted loop>
+                <video src="{{ asset('images/pengeluaran.mp4') }}" alt="Catat Pemasukan" controls autoplay muted loop>
                     Your browser does not support the video tag.
                 </video>
             </div>
@@ -245,7 +245,7 @@ https://drive.google.com/uc?export=download&id=1ESqdh5DEdKQeGhgzTi3WHQZ4T2Jg7iIZ
         <div class="fitur-detail green">
             <div class="fitur-image">
                 <!-- Ganti dengan video -->
-                <video src="images/Rekap Arus Kas Masuk & Keluar.mp4" alt="Catat Pemasukan" controls autoplay muted
+                <video src="{{ asset('images/Rekap Arus Kas Masuk & Keluar.mp4') }}" alt="Catat Pemasukan" controls autoplay muted
                     loop>
                     Your browser does not support the video tag.
                 </video>
@@ -272,7 +272,7 @@ https://drive.google.com/uc?export=download&id=1ESqdh5DEdKQeGhgzTi3WHQZ4T2Jg7iIZ
             </div>
             <div class="fitur-image">
                 <!-- Ganti dengan video -->
-                <video src="images/Catat Pengeluaran Keuangan.mp4" alt="Catat Pemasukan" controls autoplay muted loop>
+                <video src="{{ asset('images/Catat Pengeluaran Keuangan.mp4') }}" alt="Catat Pemasukan" controls autoplay muted loop>
                     Your browser does not support the video tag.
                 </video>
             </div>
