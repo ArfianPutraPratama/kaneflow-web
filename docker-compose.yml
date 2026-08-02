@@ -16,6 +16,7 @@ services:
       APP_KEY: "${APP_KEY:-base64:Opx3eDpk4MHR0Bz1bU3rDxuHZRbDja3vta9tscCzIXU=}"
       APP_DEBUG: "${APP_DEBUG:-true}"
       APP_URL: "${APP_URL:-http://localhost:8081}"
+      ASSET_URL: "${ASSET_URL:-}"
       RUN_MIGRATIONS: "true"
       
       # Database Config (menghubungkan ke service 'db' di bawah)
